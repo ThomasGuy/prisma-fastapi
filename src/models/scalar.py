@@ -1,6 +1,12 @@
 from enum import Enum
 
 
-class Gender(Enum):
-    Male = "male"
-    Female = "female"
+class Gender(str, Enum):
+    MALE = "male"
+    FEMALE = "female"
+
+
+class Role(str, Enum):
+    AI = "AI"
+    ADMIN = "admin"
+    USER = "user"

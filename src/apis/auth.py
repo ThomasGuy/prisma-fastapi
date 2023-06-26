@@ -1,9 +1,8 @@
 import datetime
-from typing import List, Optional
 from fastapi import APIRouter
 from prisma.models import User
 from pydantic import BaseModel
-from src.models.scalar import Gender
+from src.models.scalar import Gender, Role
 from src.prisma import prisma
 from src.utils.auth import (
     encryptPassword,
@@ -45,20 +44,22 @@ async def sign_in(signIn: SignIn):
 class SignUp(BaseModel):
     email: str
     password: str
-    name: Optional[str] = None
-    nickname: Optional[str] = None
-    birthday: Optional[datetime.date] = None
-    gender: Optional[Gender] = None
-    phone: Optional[str] = None
+    role: Role = "user"
+    name: str | None = None
+    nickname: str | None = None
+    birthday: datetime.date | None = None
+    gender: Gender | None = None
+    phone: str | None = None
 
 
 @router.post("/auth/sign-up", tags=["auth"])
 async def sign_up(user: SignUp):
-    password = encryptPassword(user.password)
+    # password = encryptPassword(user.password)
     created = await prisma.user.create(
         {
             "email": user.email,
             "password": encryptPassword(user.password),
+            "role": user.role,
             "name": user.name,
             "nickname": user.nickname,
             "birthDay": user.birthday,

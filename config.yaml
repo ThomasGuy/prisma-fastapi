@@ -1,0 +1,17 @@
+# bitfinex data folders
+coins:
+  btc: Bitcoin,
+  eos: Eos-io,
+  etc: Ethereum-Classic,
+  eth: Ethereum,
+  ltc: Litecoin,
+  xlm: Stella,
+  xmr: Monero,
+  trx: TRON,
+  ada: Cardano,
+  xrp: Ripple,
+  dot: Polkadot
+public:
+  url: https://api-pub.bitfinex.com/v2/
+auth:
+  url: https://api.bitfinex.com/v2/
