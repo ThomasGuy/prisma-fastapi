@@ -2,6 +2,7 @@ import datetime
 from fastapi import APIRouter
 from prisma.models import User
 from pydantic import BaseModel
+from typing import Optional, Union
 from src.models.scalar import Gender, Role
 from src.prisma import prisma
 from src.utils.auth import (
@@ -23,6 +24,17 @@ class SignInOut(BaseModel):
     user: User
 
 
+class SignUp(BaseModel):
+    email: str
+    password: str
+    role: Role
+    name: Optional[str] = None
+    nickname: Optional[str] = None
+    birthday: Optional[datetime.date] = None
+    gender: Optional[Gender] = None
+    phone: Optional[str] = None
+
+
 @router.post("/auth/sign-in", tags=["auth"])
 async def sign_in(signIn: SignIn):
     user = await prisma.user.find_first(
@@ -31,41 +43,30 @@ async def sign_in(signIn: SignIn):
         }
     )
 
-    validated = validatePassword(signIn.password, user.password)
-    del user.password
+    if user and user.password:
+        validated = validatePassword(signIn.password, user.password)
+        del user.password
 
-    if validated:
-        token = signJWT(user.id)
-        return SignInOut(token=token, user=user)
+        if validated:
+            token = signJWT(user.id)
+            return SignInOut(token=token, user=user)
 
     return None
 
 
-class SignUp(BaseModel):
-    email: str
-    password: str
-    role: Role = "user"
-    name: str | None = None
-    nickname: str | None = None
-    birthday: datetime.date | None = None
-    gender: Gender | None = None
-    phone: str | None = None
-
-
 @router.post("/auth/sign-up", tags=["auth"])
 async def sign_up(user: SignUp):
-    # password = encryptPassword(user.password)
+    password = encryptPassword(user.password)
     created = await prisma.user.create(
         {
             "email": user.email,
-            "password": encryptPassword(user.password),
-            "role": user.role,
+            "password": password,
             "name": user.name,
             "nickname": user.nickname,
             "birthDay": user.birthday,
             "gender": user.gender,
             "phone": user.phone,
-        }
+        }  # type: ignore
     )
 
     return created

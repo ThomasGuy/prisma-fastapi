@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Dict
 from fastapi import APIRouter, Depends
 from src.prisma import prisma
 from src.utils.auth import JWTBearer, decodeJWT
@@ -21,7 +21,7 @@ async def read_users():
 async def read_user_me(token=Depends(JWTBearer())):
     decoded = decodeJWT(token)
 
-    if "userId" in decoded:
+    if decoded and "userId" in decoded:
         userId = decoded["userId"]
         return await prisma.user.find_unique(where={"id": userId})
     return None

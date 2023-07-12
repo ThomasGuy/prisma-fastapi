@@ -1,6 +1,6 @@
 from datetime import datetime, timedelta, timezone
 from typing_extensions import Self
-from typing import Dict
+from typing import Union
 from fastapi import Request, HTTPException
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 import os
@@ -10,7 +10,7 @@ import jwt
 jwtSecret = os.environ.get("JWT_SECRET")
 
 
-def signJWT(user_id: str) -> Dict[str, str]:
+def signJWT(user_id: str) -> str:
     EXPIRES = datetime.now(tz=timezone.utc) + timedelta(days=365)
 
     payload = {
@@ -22,7 +22,7 @@ def signJWT(user_id: str) -> Dict[str, str]:
     return token
 
 
-def decodeJWT(token: str) -> dict:
+def decodeJWT(token: str) -> Union[dict, None]:
     try:
         decoded = jwt.decode(token, jwtSecret, algorithms=["HS256"])
         return decoded if decoded["expires"] else None
@@ -37,7 +37,7 @@ def encryptPassword(password: str) -> str:
     return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
-def validatePassword(password: str, encrypted: str) -> str:
+def validatePassword(password: str, encrypted: str) -> bool:
     return bcrypt.checkpw(password.encode("utf-8"), encrypted.encode("utf-8"))
 
 
@@ -48,7 +48,9 @@ class JWTBearer(HTTPBearer):
     async def __call__(self, request: Request):
         credentials: HTTPAuthorizationCredentials = await super(
             JWTBearer, self
-        ).__call__(request)
+        ).__call__(
+            request
+        )  # type: ignore
         if credentials:
             if not credentials.scheme == "Bearer":
                 raise HTTPException(

@@ -1,11 +1,15 @@
-from src.apis import apis
-from src.prisma import prisma
 from fastapi.middleware.gzip import GZipMiddleware
 from fastapi import FastAPI
+
+from src.apis import apis
+from src.prisma import prisma
+
+from src.bfx.start import bfx
 
 app = FastAPI()
 app.add_middleware(GZipMiddleware, minimum_size=1000)
 app.include_router(apis, prefix="/apis")
+
 
 @app.on_event("startup")
 async def startup():
@@ -20,3 +24,6 @@ async def shutdown():
 @app.get("/")
 def read_root():
     return {"version": "1.0.0"}
+
+
+bfx.ws.run()

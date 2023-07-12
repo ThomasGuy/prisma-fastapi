@@ -1,0 +1,13 @@
+# bitfinex data folders
+[coins]
+BTC = "Bitcoin"
+EOS = "Eos-io"
+XRD = "Radix"
+ETH = "Ethereum"
+LTC = "Litecoin"
+XLM = "Stella"
+XMR = "Monero"
+TRX = "TRON"
+ADA = "Cardano"
+XRP = "Ripple"
+DOT = "Polkado"
